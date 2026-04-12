@@ -16,7 +16,7 @@ dependencies = [
 [project.scripts]
 coagent = "coagent.cli:cli"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=8.0",
     "ruff>=0.4",

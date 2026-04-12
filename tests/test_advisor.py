@@ -68,7 +68,7 @@ def test_advisor_consult_code_fence():
     state = ExecutorState(task="some task")
     context = make_advisor_context(state)
 
-    result, raw_response = advisor.consult(context)
+    result, _ = advisor.consult(context)
 
     assert isinstance(result, AdvisorResponse)
     assert result.status == "stop"
@@ -82,7 +82,7 @@ def test_advisor_consult_fallback():
     state = ExecutorState(task="some task")
     context = make_advisor_context(state)
 
-    result, raw_response = advisor.consult(context)
+    result, _ = advisor.consult(context)
 
     assert isinstance(result, AdvisorResponse)
     assert result.status == "continue"

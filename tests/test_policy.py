@@ -55,7 +55,7 @@ def test_failure_detection(policy_config):
     state = make_state()
 
     # First failure — below threshold
-    should1, reason1 = policy.should_consult(state, "I cannot do this.")
+    should1, _ = policy.should_consult(state, "I cannot do this.")
     assert should1 is False
 
     # Second failure — at threshold

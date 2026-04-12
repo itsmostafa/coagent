@@ -64,14 +64,19 @@ class ExecutorLoop:
                 "executor_turn",
                 turn=state.turn_number,
                 content=content[:500],  # truncate for trace
-                tokens={"prompt": response.prompt_tokens, "completion": response.completion_tokens},
+                tokens={
+                    "prompt": response.prompt_tokens,
+                    "completion": response.completion_tokens,
+                },
             )
 
             # Check for completion
             if "[DONE]" in content:
                 final_answer = content.replace("[DONE]", "").strip()
                 state.status = "completed"
-                logger.info("Executor signaled completion on turn %d", state.turn_number)
+                logger.info(
+                    "Executor signaled completion on turn %d", state.turn_number
+                )
                 break
 
             # Evaluate policy
@@ -102,7 +107,9 @@ class ExecutorLoop:
                     f"Diagnosis: {advisor_response.diagnosis}"
                 )
                 if advisor_response.recommended_plan:
-                    guidance += f"\nRecommended plan: {advisor_response.recommended_plan}"
+                    guidance += (
+                        f"\nRecommended plan: {advisor_response.recommended_plan}"
+                    )
                 if advisor_response.next_step:
                     guidance += f"\nNext step: {advisor_response.next_step}"
                 if advisor_response.risks:
@@ -125,7 +132,8 @@ class ExecutorLoop:
             state.status = "failed"
             final_answer = state.messages[-1]["content"] if state.messages else ""
             logger.warning(
-                "Executor reached max turns (%d) without completing", self.config.max_turns
+                "Executor reached max turns (%d) without completing",
+                self.config.max_turns,
             )
 
         usage = self.tracker.summary()

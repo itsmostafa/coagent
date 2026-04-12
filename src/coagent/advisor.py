@@ -1,7 +1,12 @@
 import json
 import logging
 from coagent.models import ModelClient
-from coagent.schemas import AdvisorContext, AdvisorResponse, ExecutorState, ModelResponse
+from coagent.schemas import (
+    AdvisorContext,
+    AdvisorResponse,
+    ExecutorState,
+    ModelResponse,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +87,7 @@ def build_advisor_context(
 
     # Summarize prior advisor calls
     prior_calls = [
-        {"status": r.status, "diagnosis": r.diagnosis}
-        for r in state.advisor_history
+        {"status": r.status, "diagnosis": r.diagnosis} for r in state.advisor_history
     ]
 
     return AdvisorContext(

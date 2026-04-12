@@ -1,4 +1,5 @@
 """Tests for Advisor and build_advisor_context in coagent.advisor."""
+
 import json
 from unittest.mock import MagicMock
 
@@ -44,7 +45,9 @@ def make_advisor_context(state: ExecutorState, reason: str = "test_reason"):
 
 
 def test_advisor_consult_success():
-    json_content = make_valid_advisor_json(status="revise", diagnosis="Try a different approach.", confidence=0.7)
+    json_content = make_valid_advisor_json(
+        status="revise", diagnosis="Try a different approach.", confidence=0.7
+    )
     advisor, _ = make_advisor(json_content)
 
     state = ExecutorState(task="some task")
@@ -60,7 +63,9 @@ def test_advisor_consult_success():
 
 
 def test_advisor_consult_code_fence():
-    json_body = make_valid_advisor_json(status="stop", diagnosis="Task is impossible.", confidence=0.9)
+    json_body = make_valid_advisor_json(
+        status="stop", diagnosis="Task is impossible.", confidence=0.9
+    )
     fenced_content = f"```json\n{json_body}\n```"
     advisor, _ = make_advisor(fenced_content)
 
@@ -93,9 +98,11 @@ def test_build_advisor_context_extracts_messages():
     state = ExecutorState(task="analyze data")
     # Add 5 assistant messages
     for i in range(5):
-        state.messages.append({"role": "assistant", "content": f"Step {i+1} output"})
+        state.messages.append({"role": "assistant", "content": f"Step {i + 1} output"})
 
-    context = build_advisor_context(state, reason="explicit_request", max_recent_turns=3)
+    context = build_advisor_context(
+        state, reason="explicit_request", max_recent_turns=3
+    )
 
     # Should have last 3 assistant messages joined by ---
     parts = context.recent_reasoning.split("\n---\n")
@@ -114,11 +121,19 @@ def test_build_advisor_context_prior_calls():
         AdvisorResponse(status="continue", diagnosis="Good start.", confidence=0.8)
     )
     state.advisor_history.append(
-        AdvisorResponse(status="revise", diagnosis="Change your approach.", confidence=0.6)
+        AdvisorResponse(
+            status="revise", diagnosis="Change your approach.", confidence=0.6
+        )
     )
 
     context = build_advisor_context(state, reason="stagnation")
 
     assert len(context.prior_advisor_calls) == 2
-    assert context.prior_advisor_calls[0] == {"status": "continue", "diagnosis": "Good start."}
-    assert context.prior_advisor_calls[1] == {"status": "revise", "diagnosis": "Change your approach."}
+    assert context.prior_advisor_calls[0] == {
+        "status": "continue",
+        "diagnosis": "Good start.",
+    }
+    assert context.prior_advisor_calls[1] == {
+        "status": "revise",
+        "diagnosis": "Change your approach.",
+    }

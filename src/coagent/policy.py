@@ -22,7 +22,9 @@ class DecisionPolicy:
     def __init__(self, config: PolicyConfig) -> None:
         self.config = config
         self._consecutive_failures: int = 0
-        self._turns_since_advisor: int = 999  # start high so first turn isn't in cooldown
+        self._turns_since_advisor: int = (
+            999  # start high so first turn isn't in cooldown
+        )
         self._recent_responses: list[str] = []  # last N responses for stagnation check
 
     def should_consult(
@@ -48,7 +50,14 @@ class DecisionPolicy:
 
         # 2. Failure detection
         lower = executor_response.lower()
-        failure_signals = ["i cannot", "i can't", "unable to", "i don't know", "error:", "failed to"]
+        failure_signals = [
+            "i cannot",
+            "i can't",
+            "unable to",
+            "i don't know",
+            "error:",
+            "failed to",
+        ]
         if any(sig in lower for sig in failure_signals):
             self._consecutive_failures += 1
         else:
@@ -58,7 +67,7 @@ class DecisionPolicy:
             return True, "consecutive_failures"
 
         # 3. Confidence threshold — executor can self-report with [CONFIDENCE:0.3]
-        confidence_match = re.search(r'\[CONFIDENCE:([\d.]+)\]', executor_response)
+        confidence_match = re.search(r"\[CONFIDENCE:([\d.]+)\]", executor_response)
         if confidence_match:
             try:
                 confidence = float(confidence_match.group(1))

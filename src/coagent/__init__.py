@@ -3,7 +3,13 @@ from coagent.config import load_config, merge_cli_overrides
 from coagent.executor import ExecutorLoop
 from coagent.schemas import CoagentConfig, ExecutorResult
 
-__all__ = ["load_config", "merge_cli_overrides", "ExecutorLoop", "CoagentConfig", "ExecutorResult"]
+__all__ = [
+    "load_config",
+    "merge_cli_overrides",
+    "ExecutorLoop",
+    "CoagentConfig",
+    "ExecutorResult",
+]
 
 
 def run_task(task: str, config: CoagentConfig | None = None) -> ExecutorResult:

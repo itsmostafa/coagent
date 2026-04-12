@@ -14,4 +14,7 @@ def minimal_config():
 @pytest.fixture
 def policy_config():
     from coagent.schemas import PolicyConfig
-    return PolicyConfig(max_advisor_calls=3, failure_threshold=2, stagnation_turns=3, cooldown_turns=1)
+
+    return PolicyConfig(
+        max_advisor_calls=3, failure_threshold=2, stagnation_turns=3, cooldown_turns=1
+    )

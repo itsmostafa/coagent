@@ -10,7 +10,9 @@ class CostTracker:
         self._executor = UsageRecord()
         self._advisor = UsageRecord()
 
-    def record(self, role: Literal["executor", "advisor"], response: ModelResponse) -> None:
+    def record(
+        self, role: Literal["executor", "advisor"], response: ModelResponse
+    ) -> None:
         """Record usage from a model response."""
         record = self._executor if role == "executor" else self._advisor
         record.calls += 1
@@ -23,7 +25,8 @@ class CostTracker:
         total = UsageRecord(
             calls=self._executor.calls + self._advisor.calls,
             prompt_tokens=self._executor.prompt_tokens + self._advisor.prompt_tokens,
-            completion_tokens=self._executor.completion_tokens + self._advisor.completion_tokens,
+            completion_tokens=self._executor.completion_tokens
+            + self._advisor.completion_tokens,
             cost_usd=self._executor.cost_usd + self._advisor.cost_usd,
         )
         return {

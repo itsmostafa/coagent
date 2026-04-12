@@ -1,5 +1,6 @@
 """Example: running coagent via the Python API."""
-from coagent import load_config, run_task
+
+from coagent import run_task
 from coagent.schemas import CoagentConfig, ModelConfig
 
 # Option 1: Use a config file
@@ -20,7 +21,9 @@ print(result.final_answer)
 print()
 print("=== USAGE ===")
 for role, data in result.usage_summary.items():
-    print(f"  {role}: {data['calls']} calls, {data['prompt_tokens'] + data['completion_tokens']} tokens, ${data['cost_usd']:.6f}")
+    print(
+        f"  {role}: {data['calls']} calls, {data['prompt_tokens'] + data['completion_tokens']} tokens, ${data['cost_usd']:.6f}"
+    )
 
 if result.advisor_history:
     print(f"\nAdvisor was consulted {len(result.advisor_history)} time(s).")

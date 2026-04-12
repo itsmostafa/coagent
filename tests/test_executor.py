@@ -1,4 +1,5 @@
 """Tests for ExecutorLoop in coagent.executor."""
+
 from unittest.mock import MagicMock
 
 
@@ -137,7 +138,8 @@ def test_executor_advisor_guidance_injected():
 
     # Find the advisor guidance message injected into the conversation
     guidance_messages = [
-        m for m in result.state.messages
+        m
+        for m in result.state.messages
         if m.get("role") == "user" and "[ADVISOR GUIDANCE" in m.get("content", "")
     ]
     assert len(guidance_messages) == 1

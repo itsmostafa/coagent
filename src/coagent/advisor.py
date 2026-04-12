@@ -1,7 +1,7 @@
 import json
 import logging
 from coagent.models import ModelClient
-from coagent.schemas import AdvisorContext, AdvisorResponse, ExecutorState
+from coagent.schemas import AdvisorContext, AdvisorResponse, ExecutorState, ModelResponse
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +33,11 @@ class Advisor:
     def __init__(self, client: ModelClient) -> None:
         self.client = client
 
-    def consult(self, context: AdvisorContext) -> AdvisorResponse:
-        """Send context to advisor model and return parsed AdvisorResponse.
+    def consult(self, context: AdvisorContext) -> tuple[AdvisorResponse, ModelResponse]:
+        """Send context to advisor model and return parsed AdvisorResponse plus the raw ModelResponse.
 
         On JSON parse failure, returns a fallback AdvisorResponse wrapping the raw text.
+        The ModelResponse is always returned so callers can record usage/cost.
         """
         user_message = json.dumps(context.model_dump(), indent=2)
         messages = [{"role": "user", "content": user_message}]
@@ -52,14 +53,14 @@ class Advisor:
                 raw = "\n".join(lines[1:-1])  # strip first and last line
 
             data = json.loads(raw)
-            return AdvisorResponse.model_validate(data)
+            return AdvisorResponse.model_validate(data), response
         except (json.JSONDecodeError, ValueError) as e:
             logger.warning("Advisor response parse failed: %s. Using fallback.", e)
             return AdvisorResponse(
                 status="continue",
                 diagnosis=response.content,
                 confidence=0.5,
-            )
+            ), response
 
 
 def build_advisor_context(

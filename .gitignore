@@ -194,9 +194,15 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+# Configuration
+config.yaml
+
 # AI
 .claude/
 ai_docs/
+
+# documentation
+docs/
 
 # Git worktrees
 .worktrees/

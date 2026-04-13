@@ -14,7 +14,7 @@ EXECUTOR_SYSTEM_PROMPT = """You are an AI assistant working to complete a task g
 
 When you have fully completed the task and produced a final answer, end your response with exactly: [DONE]
 
-If you are stuck and genuinely need strategic guidance, include exactly: [NEED_ADVICE]
+If you are stuck, genuinely need strategic guidance, or the user explicitly asks you to consult the advisor, include exactly: [NEED_ADVICE]
 
 You may optionally report your confidence in your current approach with: [CONFIDENCE:0.8] (replace 0.8 with a value from 0.0 to 1.0)
 
@@ -72,6 +72,7 @@ class ExecutorLoop:
                 "executor_turn",
                 turn=state.turn_number,
                 content=content[:500],  # truncate for trace
+                tool_calls=response.tool_calls,
                 tokens={
                     "prompt": response.prompt_tokens,
                     "completion": response.completion_tokens,

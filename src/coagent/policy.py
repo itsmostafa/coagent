@@ -5,6 +5,8 @@ from coagent.schemas import ExecutorState, PolicyConfig
 
 def _response_similarity(a: str, b: str) -> float:
     """Simple word-overlap similarity between two strings (Jaccard). Returns 0.0-1.0."""
+    if not a and not b:
+        return 1.0
     if not a or not b:
         return 0.0
     words_a = set(a.lower().split())

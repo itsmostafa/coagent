@@ -1,6 +1,6 @@
 """Tests for DecisionPolicy in coagent.policy."""
 
-from coagent.policy import DecisionPolicy
+from coagent.policy import DecisionPolicy, _response_similarity
 from coagent.schemas import ExecutorState, PolicyConfig
 
 
@@ -188,6 +188,23 @@ def test_force_consult_bypasses_budget_gate():
     should, reason = policy.should_consult(state, "A normal response.")
     assert should is True
     assert reason == "force_consult"
+
+
+def test_response_similarity_both_empty():
+    # Two empty strings are identical — should return 1.0, not 0.0
+    assert _response_similarity("", "") == 1.0
+
+
+def test_stagnation_detects_consecutive_empty_responses(policy_config):
+    # stagnation_turns=3: three consecutive empty responses should trigger stagnation
+    policy = DecisionPolicy(policy_config)
+    state = make_state()
+
+    policy.should_consult(state, "")
+    policy.should_consult(state, "")
+    should, reason = policy.should_consult(state, "")
+    assert should is True
+    assert reason == "stagnation"
 
 
 def test_force_consult_false_does_not_affect_normal_policy(policy_config):

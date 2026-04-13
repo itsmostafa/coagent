@@ -44,6 +44,12 @@ def cli() -> None:
     help="API base URL for advisor (e.g. http://localhost:1234/v1).",
 )
 @click.option("--trace", default=None, help="Path to write JSONL trace file.")
+@click.option(
+    "--force-consult",
+    is_flag=True,
+    default=False,
+    help="Force advisor consultation on the first policy check.",
+)
 def run(
     task: str,
     executor: str | None,
@@ -51,6 +57,7 @@ def run(
     advisor_model: str | None,
     advisor_api_base: str | None,
     trace: str | None,
+    force_consult: bool,
 ) -> None:
     """Run coagent on a TASK."""
     # Load and merge config (auto-discovers config.yaml / config.yml)
@@ -61,6 +68,7 @@ def run(
         advisor=advisor_model,
         executor_api_base=executor_api_base,
         advisor_api_base=advisor_api_base,
+        force_consult=force_consult,
     )
 
     # Override trace file if provided via CLI

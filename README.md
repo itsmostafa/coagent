@@ -11,9 +11,7 @@ Reference: https://claude.com/blog/the-advisor-strategy
 ### Install
 
 ```bash
-pip install coagent
-# or with uv:
-uv add coagent
+uv sync
 ```
 
 ### Run from CLI

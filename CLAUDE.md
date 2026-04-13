@@ -43,8 +43,8 @@ User prompt → CLI / run_task() → ExecutorLoop
 | `executor.py` | `ExecutorLoop` — drives conversation turns, injects advisor guidance, detects `[DONE]` |
 | `policy.py` | `DecisionPolicy` — gates (budget/cooldown) + heuristics (explicit `[NEED_ADVICE]`, consecutive failures, low `[CONFIDENCE:X.X]`, stagnation via Jaccard similarity) |
 | `advisor.py` | `Advisor` — serializes context to JSON, calls advisor model, parses structured `AdvisorResponse` |
-| `models.py` | `ModelClient` — thin LiteLLM wrapper; passes `api_base` through for local endpoints |
-| `schemas.py` | Pydantic models: `CoagentConfig`, `ModelConfig`, `PolicyConfig`, `ExecutorResult`, `AdvisorResponse` |
+| `models.py` | `ModelClient` — thin LiteLLM wrapper; tool-call loop for Tavily search; passes `api_base` through for local endpoints |
+| `schemas.py` | Pydantic models: `CoagentConfig`, `ModelConfig`, `PolicyConfig`, `SearchConfig`, `ExecutorResult`, `AdvisorResponse` |
 | `config.py` | `load_config()` + `merge_cli_overrides()` — YAML loading with `${ENV_VAR}` expansion |
 | `log.py` | `TraceLogger` — structured JSONL events per turn |
 | `tracking.py` | `CostTracker` — token/cost accounting per role (executor vs advisor) |
@@ -55,5 +55,8 @@ User prompt → CLI / run_task() → ExecutorLoop
 - **LiteLLM routing**: `openai/*` models route to real OpenAI unless `api_base` is set. Always set `api_base` for local endpoints (LM Studio: `http://localhost:1234/v1`).
 - **`ModelConfig.api_base`**: `str | None = None` — passed directly to LiteLLM.
 - **CLI overrides**: `--executor-api-base` / `--advisor-api-base` flags feed into `merge_cli_overrides()`.
+- **`--search` flag**: enables Tavily web search tool; `search_enabled=True` is passed to `merge_cli_overrides()` which sets `config.search.enabled`. Both `ModelClient`s receive `search=config.search`.
+- **Tool-call loop**: when `search.enabled`, `ModelClient.generate()` passes `tools=[TAVILY_SEARCH_TOOL]` and `tool_choice="auto"` to LiteLLM, then loops until the model returns plain content (max `MAX_TOOL_ITERATIONS=10`). Token/cost totals accumulate across iterations.
+- **`SearchConfig.api_key`**: optional — `TavilyClient` reads `TAVILY_API_KEY` from env automatically if not set.
 - **Advisor is never user-facing**: it only injects guidance as a user-turn message back to the executor.
 - **Test fixtures**: `conftest.py` provides `sample_task`, `minimal_config`, `policy_config`; model calls are mocked.

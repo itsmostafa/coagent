@@ -114,3 +114,13 @@ def test_merge_cli_overrides_api_base_none_preserves_existing():
     # No api_base override → existing api_base (None) is preserved
     result = merge_cli_overrides(config, executor="openai/gpt-oss-20b")
     assert result.executor.api_base is None
+
+
+def test_policy_config_force_consult_defaults_false():
+    config = PolicyConfig()
+    assert config.force_consult is False
+
+
+def test_policy_config_force_consult_can_be_set():
+    config = PolicyConfig(force_consult=True)
+    assert config.force_consult is True

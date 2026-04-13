@@ -25,6 +25,7 @@ class PolicyConfig(BaseModel):
     confidence_threshold: float = 0.4
     stagnation_turns: int = 4
     cooldown_turns: int = 2
+    force_consult: bool = False
 
 
 class LoggingConfig(BaseModel):

@@ -75,6 +75,11 @@ max_turns: 20
 logging:
   level: "INFO"
   trace_file: "traces/run.jsonl"
+
+# Optional: Tavily web search tool (models decide when to use it)
+search:
+  enabled: true
+  # api_key is optional — TavilyClient reads TAVILY_API_KEY from env automatically
 ```
 
 ## Architecture
@@ -117,6 +122,20 @@ Any model supported by [LiteLLM](https://docs.litellm.ai/docs/providers):
 - Anthropic: `anthropic/claude-sonnet-4-6`
 - OpenAI-compatible: set `api_base` in config, or pass `--executor-api-base` / `--advisor-api-base` via CLI
 
+## Web Search
+
+Enable Tavily web search so models can look up current information at their own discretion:
+
+```bash
+# Via CLI flag
+TAVILY_API_KEY=tvly-xxx coagent run --search "What are the top AI papers this week?"
+
+# Via config (search.enabled: true in config.yaml)
+TAVILY_API_KEY=tvly-xxx coagent run "What are the top AI papers this week?"
+```
+
+The model decides when to call the search tool (`tool_choice="auto"`). It is never forced. Get a free API key at [tavily.com](https://tavily.com).
+
 ## Development
 
 ```bash
@@ -127,6 +146,5 @@ uv run ruff check src/ tests/
 
 ## Limitations (MVP)
 
-- Text-only (no tool calling)
 - Synchronous only (no streaming or async)
 - Single advisor model

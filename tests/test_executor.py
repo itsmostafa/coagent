@@ -16,7 +16,22 @@ from coagent.schemas import (
 from coagent.tracking import CostTracker
 
 
-def make_mock_model_response(content: str) -> ModelResponse:
+class RecordingTraceLogger:
+    """Trace logger that records all events for test assertions."""
+
+    def __init__(self) -> None:
+        self.events: list[dict] = []
+
+    def log(self, event: str, **data) -> None:
+        self.events.append({"event": event, **data})
+
+    def close(self) -> None:
+        pass
+
+
+def make_mock_model_response(
+    content: str, tool_calls: list[dict] | None = None
+) -> ModelResponse:
     """Helper to create a mock ModelResponse."""
     return ModelResponse(
         content=content,
@@ -24,6 +39,7 @@ def make_mock_model_response(content: str) -> ModelResponse:
         completion_tokens=5,
         cost=0.001,
         model="test/model",
+        tool_calls=tool_calls or [],
     )
 
 
@@ -32,6 +48,8 @@ def make_executor_loop(
     advisor_response: AdvisorResponse | None = None,
     max_turns: int = 5,
     policy_config: PolicyConfig | None = None,
+    executor_model_responses: list[ModelResponse] | None = None,
+    trace_logger=None,
 ) -> tuple[ExecutorLoop, MagicMock, MagicMock, CostTracker]:
     """Build an ExecutorLoop with mocked executor client and advisor."""
     if policy_config is None:
@@ -51,9 +69,12 @@ def make_executor_loop(
 
     # Mock executor client
     mock_executor_client = MagicMock()
-    mock_executor_client.generate.side_effect = [
-        make_mock_model_response(content) for content in executor_responses
-    ]
+    if executor_model_responses is not None:
+        mock_executor_client.generate.side_effect = executor_model_responses
+    else:
+        mock_executor_client.generate.side_effect = [
+            make_mock_model_response(content) for content in executor_responses
+        ]
 
     # Mock advisor
     mock_advisor = MagicMock()
@@ -65,7 +86,8 @@ def make_executor_loop(
 
     tracker = CostTracker()
     policy = DecisionPolicy(policy_config)
-    trace_logger = NullTraceLogger()
+    if trace_logger is None:
+        trace_logger = NullTraceLogger()
 
     loop = ExecutorLoop(
         executor_client=mock_executor_client,
@@ -186,3 +208,33 @@ def test_executor_usage_tracked():
     # Tokens and costs should be positive
     assert summary["executor"]["prompt_tokens"] > 0
     assert summary["advisor"]["cost_usd"] > 0
+
+
+def test_executor_logs_tool_calls_in_trace():
+    """executor_turn trace event includes tool_calls; individual tool_call events are also logged."""
+    recorder = RecordingTraceLogger()
+    tool_calls = [{"tool": "tavily_search", "query": "latest AI news"}]
+    responses = [
+        make_mock_model_response(
+            "Searched and found results. [DONE]", tool_calls=tool_calls
+        ),
+    ]
+    loop, _, _, _ = make_executor_loop(
+        executor_responses=[],
+        executor_model_responses=responses,
+        max_turns=5,
+        policy_config=PolicyConfig(max_advisor_calls=0),
+        trace_logger=recorder,
+    )
+    loop.run("Find latest AI news")
+
+    # Individual tool_call event should be logged
+    tool_call_events = [e for e in recorder.events if e["event"] == "tool_call"]
+    assert len(tool_call_events) == 1
+    assert tool_call_events[0]["tool"] == "tavily_search"
+    assert tool_call_events[0]["query"] == "latest AI news"
+
+    # executor_turn event should include tool_calls
+    turn_events = [e for e in recorder.events if e["event"] == "executor_turn"]
+    assert len(turn_events) == 1
+    assert turn_events[0]["tool_calls"] == tool_calls

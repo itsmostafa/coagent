@@ -115,6 +115,7 @@ def test_generate_handles_tool_call_loop():
 
     mock_search.assert_called_once_with("latest AI news")
     assert result.content == "Here are the results."
+    assert result.tool_calls == [{"tool": "tavily_search", "query": "latest AI news"}]
 
 
 def test_generate_accumulates_tokens_across_tool_calls():

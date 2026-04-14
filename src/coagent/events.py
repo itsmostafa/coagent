@@ -4,6 +4,16 @@ from typing import Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, Field
 
+__all__ = [
+    "RunStartEvent",
+    "TurnCompleteEvent",
+    "PolicyCheckEvent",
+    "AdvisorCallEvent",
+    "RunCompleteEvent",
+    "LoopEvent",
+    "EventCallback",
+]
+
 
 class RunStartEvent(BaseModel):
     kind: Literal["run_start"] = "run_start"
@@ -22,7 +32,7 @@ class TurnCompleteEvent(BaseModel):
     prompt_tokens: int
     completion_tokens: int
     cumulative_cost: float
-    status: str
+    status: Literal["running", "completed", "failed"]
 
 
 class PolicyCheckEvent(BaseModel):
@@ -36,7 +46,7 @@ class AdvisorCallEvent(BaseModel):
     kind: Literal["advisor_call"] = "advisor_call"
     turn: int
     reason: str
-    advisor_status: str
+    advisor_status: Literal["continue", "stop", "revise"]
     diagnosis: str
     recommended_plan: str | None = None
     next_step: str | None = None
@@ -48,7 +58,7 @@ class RunCompleteEvent(BaseModel):
     kind: Literal["run_complete"] = "run_complete"
     turns: int
     advisor_calls: int
-    status: str
+    status: Literal["running", "completed", "failed"]
     final_answer: str
     usage: dict
 
@@ -64,4 +74,6 @@ LoopEvent = (
 
 @runtime_checkable
 class EventCallback(Protocol):
+    """Sync-only event callback. Called from the executor worker thread; use post_message for TUI updates."""
+
     def __call__(self, event: LoopEvent) -> None: ...

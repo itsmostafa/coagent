@@ -24,6 +24,7 @@ tui = ["textual>=0.50.0"]
 dev = [
     "pytest>=8.0",
     "ruff>=0.4",
+    "textual>=0.50.0",
 ]
 
 [tool.hatch.build.targets.wheel]

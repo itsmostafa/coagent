@@ -69,6 +69,7 @@ def make_executor_loop(
 
     # Mock executor client
     mock_executor_client = MagicMock()
+    mock_executor_client.model = "test/executor"
     if executor_model_responses is not None:
         mock_executor_client.generate.side_effect = executor_model_responses
     else:
@@ -78,6 +79,7 @@ def make_executor_loop(
 
     # Mock advisor
     mock_advisor = MagicMock()
+    mock_advisor.client.model = "test/advisor"
     if advisor_response is not None:
         mock_advisor.consult.return_value = (
             advisor_response,

@@ -2,6 +2,15 @@ import logging
 from typing import Union
 
 from coagent.advisor import Advisor, build_advisor_context
+from coagent.events import (
+    AdvisorCallEvent,
+    EventCallback,
+    LoopEvent,
+    PolicyCheckEvent,
+    RunCompleteEvent,
+    RunStartEvent,
+    TurnCompleteEvent,
+)
 from coagent.log import NullTraceLogger, TraceLogger
 from coagent.models import ModelClient
 from coagent.policy import DecisionPolicy
@@ -30,6 +39,7 @@ class ExecutorLoop:
         tracker: CostTracker,
         trace_logger: Union[TraceLogger, NullTraceLogger],
         config: CoagentConfig,
+        on_event: EventCallback | None = None,
     ) -> None:
         self.executor_client = executor_client
         self.advisor = advisor
@@ -37,6 +47,11 @@ class ExecutorLoop:
         self.tracker = tracker
         self.trace_logger = trace_logger
         self.config = config
+        self._on_event = on_event
+
+    def _emit(self, event: LoopEvent) -> None:
+        if self._on_event is not None:
+            self._on_event(event)
 
     def run(self, task: str) -> ExecutorResult:
         """Run the executor loop for a given task. Returns the final result."""
@@ -44,6 +59,15 @@ class ExecutorLoop:
         state.messages.append({"role": "user", "content": task})
 
         final_answer = ""
+
+        self._emit(
+            RunStartEvent(
+                task=task,
+                executor_model=self.executor_client.model,
+                advisor_model=self.advisor.client.model,
+                max_turns=self.config.max_turns,
+            )
+        )
 
         for turn in range(self.config.max_turns):
             state.turn_number = turn + 1
@@ -79,6 +103,19 @@ class ExecutorLoop:
                 },
             )
 
+            self._emit(
+                TurnCompleteEvent(
+                    turn=state.turn_number,
+                    max_turns=self.config.max_turns,
+                    content=content,
+                    tool_calls=response.tool_calls,
+                    prompt_tokens=response.prompt_tokens,
+                    completion_tokens=response.completion_tokens,
+                    cumulative_cost=self.tracker.summary()["total"]["cost_usd"],
+                    status=state.status,
+                )
+            )
+
             # Evaluate policy (before done check so force_consult fires even on
             # turns where the executor signals completion)
             should_consult, reason = self.policy.should_consult(state, content)
@@ -88,6 +125,14 @@ class ExecutorLoop:
                 turn=state.turn_number,
                 should_consult=should_consult,
                 reason=reason,
+            )
+
+            self._emit(
+                PolicyCheckEvent(
+                    turn=state.turn_number,
+                    should_consult=should_consult,
+                    reason=reason,
+                )
             )
 
             # Check for completion
@@ -129,6 +174,19 @@ class ExecutorLoop:
                     advisor_diagnosis=advisor_response.diagnosis,
                 )
 
+                self._emit(
+                    AdvisorCallEvent(
+                        turn=state.turn_number,
+                        reason=reason,
+                        advisor_status=advisor_response.status,
+                        diagnosis=advisor_response.diagnosis,
+                        recommended_plan=advisor_response.recommended_plan,
+                        next_step=advisor_response.next_step,
+                        risks=advisor_response.risks,
+                        confidence=advisor_response.confidence,
+                    )
+                )
+
             self.policy.advance_turn()
 
             if done:
@@ -161,6 +219,16 @@ class ExecutorLoop:
             turns=state.turn_number,
             advisor_calls=state.advisor_calls,
             usage=usage,
+        )
+
+        self._emit(
+            RunCompleteEvent(
+                turns=state.turn_number,
+                advisor_calls=state.advisor_calls,
+                status=state.status,
+                final_answer=final_answer,
+                usage=usage,
+            )
         )
 
         return ExecutorResult(

@@ -26,5 +26,8 @@ dev = [
     "ruff>=0.4",
 ]
 
+[tool.pytest.ini_options]
+anyio_mode = "auto"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/coagent"]

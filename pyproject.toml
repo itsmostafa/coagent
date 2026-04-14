@@ -24,10 +24,8 @@ tui = ["textual>=0.50.0"]
 dev = [
     "pytest>=8.0",
     "ruff>=0.4",
+    "textual>=0.50.0",
 ]
-
-[tool.pytest.ini_options]
-anyio_mode = "auto"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/coagent"]

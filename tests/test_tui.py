@@ -3,8 +3,14 @@ import pytest
 pytest.importorskip("textual")
 
 from textual.app import App, ComposeResult
+from textual.widgets import Static
 
-from coagent.tui import StatusBar
+from coagent.events import (
+    AdvisorCallEvent,
+    RunStartEvent,
+    TurnCompleteEvent,
+)
+from coagent.tui import MessageLog, StatusBar
 
 pytestmark = pytest.mark.anyio
 
@@ -40,3 +46,66 @@ async def test_status_bar_updates():
         assert "1234" in rendered_str
         assert "0.0012" in rendered_str
         assert "Running" in rendered_str
+
+
+class MessageLogTestApp(App):
+    def compose(self) -> ComposeResult:
+        yield MessageLog()
+
+
+async def test_message_log_add_task():
+    async with MessageLogTestApp().run_test() as pilot:
+        log = pilot.app.query_one(MessageLog)
+        log.add_event(
+            RunStartEvent(
+                task="Solve this problem",
+                executor_model="test/model",
+                advisor_model="test/advisor",
+                max_turns=20,
+            )
+        )
+        await pilot.pause()
+        widgets = log.query(Static)
+        all_text = " ".join(str(w.content) for w in widgets)
+        assert "Solve this problem" in all_text
+
+
+async def test_message_log_add_turn():
+    async with MessageLogTestApp().run_test() as pilot:
+        log = pilot.app.query_one(MessageLog)
+        log.add_event(
+            TurnCompleteEvent(
+                turn=1,
+                max_turns=20,
+                content="Here is my analysis of the problem...",
+                tool_calls=[],
+                prompt_tokens=10,
+                completion_tokens=5,
+                cumulative_cost=0.001,
+                status="running",
+            )
+        )
+        await pilot.pause()
+        widgets = log.query(Static)
+        all_text = " ".join(str(w.content) for w in widgets)
+        assert "Turn 1" in all_text
+        assert "analysis" in all_text
+
+
+async def test_message_log_add_advisor():
+    async with MessageLogTestApp().run_test() as pilot:
+        log = pilot.app.query_one(MessageLog)
+        log.add_event(
+            AdvisorCallEvent(
+                turn=2,
+                reason="low_confidence",
+                advisor_status="continue",
+                diagnosis="You are on the right track.",
+                confidence=0.8,
+            )
+        )
+        await pilot.pause()
+        widgets = log.query(Static)
+        all_text = " ".join(str(w.content) for w in widgets)
+        assert "Advisor" in all_text
+        assert "right track" in all_text

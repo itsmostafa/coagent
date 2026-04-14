@@ -17,6 +17,9 @@ dependencies = [
 [project.scripts]
 coagent = "coagent.cli:cli"
 
+[project.optional-dependencies]
+tui = ["textual>=0.50.0"]
+
 [dependency-groups]
 dev = [
     "pytest>=8.0",

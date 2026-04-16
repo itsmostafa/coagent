@@ -1,10 +1,13 @@
 import os
 import re
+from pathlib import Path
 from typing import Any
 
 import yaml
 
 from hivemind.schemas import HivemindConfig, ModelConfig
+
+USER_CONFIG_PATH = Path.home() / ".hivemind" / "config.yml"
 
 
 def _expand_env_vars(value: str) -> str:
@@ -29,22 +32,17 @@ def _expand_env_vars_in_dict(data: Any) -> Any:
         return data
 
 
-_CONFIG_CANDIDATES = ("config.yaml", "config.yml")
-
-
 def load_config(path: str | None = None) -> HivemindConfig:
     """Load HivemindConfig from a YAML file.
 
-    If path is None, looks for config.yaml then config.yml in the current
-    directory. If neither exists, returns a default config.
+    If path is None, looks for ~/.hivemind/config.yml. If it does not exist,
+    returns a default config.
     Expands ${ENV_VAR} references in string values.
     Validates with Pydantic.
     """
     if path is None:
-        for candidate in _CONFIG_CANDIDATES:
-            if os.path.exists(candidate):
-                path = candidate
-                break
+        if USER_CONFIG_PATH.exists():
+            path = str(USER_CONFIG_PATH)
 
     if path is None:
         return HivemindConfig(

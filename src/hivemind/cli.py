@@ -5,7 +5,9 @@ from datetime import datetime
 
 import click
 
+from hivemind._templates import DEFAULT_CONFIG_YAML
 from hivemind.advisor import Advisor
+from hivemind import config as _config
 from hivemind.config import load_config, merge_cli_overrides
 from hivemind.executor import ExecutorLoop
 from hivemind.log import NullTraceLogger, TraceLogger, configure_logging
@@ -31,6 +33,22 @@ def _timestamped_trace_path(path: str) -> str:
 @click.group()
 def cli() -> None:
     """Hivemind: advisor strategy LLM framework."""
+
+
+@cli.command()
+@click.option("--force", is_flag=True, help="Overwrite an existing config file.")
+def init(force: bool) -> None:
+    """Create ~/.hivemind/config.yml from the default template."""
+    target = _config.USER_CONFIG_PATH
+    if target.exists() and not force:
+        click.echo(
+            f"Error: config already exists at {target}. Use --force to overwrite.",
+            err=True,
+        )
+        sys.exit(1)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(DEFAULT_CONFIG_YAML)
+    click.echo(f"Created {target}")
 
 
 @cli.command()

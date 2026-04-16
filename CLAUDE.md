@@ -17,6 +17,7 @@ task test        # pytest
 uv run pytest tests/test_executor.py::test_name -v
 
 # Invoke the CLI (use uv run — the system entrypoint may use the wrong Python)
+uv run hivemind init                        # scaffold ~/.hivemind/config.yml
 uv run hivemind run --executor ollama/llama3 --advisor ollama/llama3 "Your task"
 uv run hivemind trace traces/run.jsonl
 ```
@@ -45,10 +46,10 @@ User prompt → CLI / run_task() → ExecutorLoop
 | `advisor.py` | `Advisor` — serializes context to JSON, calls advisor model, parses structured `AdvisorResponse` |
 | `models.py` | `ModelClient` — thin LiteLLM wrapper; tool-call loop for Tavily search; passes `api_base` through for local endpoints |
 | `schemas.py` | Pydantic models: `hivemindConfig`, `ModelConfig`, `PolicyConfig`, `SearchConfig`, `ExecutorResult`, `AdvisorResponse` |
-| `config.py` | `load_config()` + `merge_cli_overrides()` — YAML loading with `${ENV_VAR}` expansion |
+| `config.py` | `load_config()` + `merge_cli_overrides()` — YAML loading from `~/.hivemind/config.yml` with `${ENV_VAR}` expansion |
 | `log.py` | `TraceLogger` — structured JSONL events per turn |
 | `tracking.py` | `CostTracker` — token/cost accounting per role (executor vs advisor) |
-| `cli.py` | Click CLI — `hivemind run` and `hivemind trace` commands |
+| `cli.py` | Click CLI — `hivemind init`, `hivemind run`, and `hivemind trace` commands |
 
 ### Important details
 
@@ -59,4 +60,5 @@ User prompt → CLI / run_task() → ExecutorLoop
 - **Tool-call loop**: when `search.enabled`, `ModelClient.generate()` passes `tools=[TAVILY_SEARCH_TOOL]` and `tool_choice="auto"` to LiteLLM, then loops until the model returns plain content (max `MAX_TOOL_ITERATIONS=10`). Token/cost totals accumulate across iterations.
 - **`SearchConfig.api_key`**: optional — `TavilyClient` reads `TAVILY_API_KEY` from env automatically if not set.
 - **Advisor is never user-facing**: it only injects guidance as a user-turn message back to the executor.
-- **Test fixtures**: `conftest.py` provides `sample_task`, `minimal_config`, `policy_config`; model calls are mocked.
+- **User config path**: `load_config()` reads `~/.hivemind/config.yml` (no CWD discovery). `hivemind init` scaffolds it from the bundled default template in `_templates.py`.
+- **Test fixtures**: `conftest.py` provides `sample_task`, `minimal_config`, `policy_config`, and `home_tmp` (redirects `USER_CONFIG_PATH` to a tmp dir for isolation); model calls are mocked.

@@ -6,17 +6,32 @@ The typical setup pairs a local model as the executor with a state-of-the-art mo
 
 Reference: https://claude.com/blog/the-advisor-strategy
 
+**Requires [uv](https://github.com/astral-sh/uv)** — install it with `curl -LsSf https://astral.sh/uv/install.sh | sh`.
+
 ## Quick Start
 
 ### Install
 
 ```bash
-uv sync
+uv tool install git+https://github.com/itsmostafa/hivemind
+```
+
+This makes `hivemind` available as a command in your PATH. Requires [uv](https://docs.astral.sh/uv/).
+
+To install from a local clone:
+
+```bash
+git clone https://github.com/itsmostafa/hivemind
+uv tool install ./hivemind
 ```
 
 ### Run from CLI
 
 ```bash
+# Create your user config (run once after install)
+hivemind init
+# Edit ~/.hivemind/config.yml to set your models and API keys
+
 # With Ollama (local)
 hivemind run --executor ollama/llama3.2 --advisor openai/gpt-5.4 "Explain REST vs GraphQL tradeoffs"
 
@@ -26,7 +41,7 @@ hivemind run \
   --advisor openai/gpt-5.4 \
   "Write a CSV parser in Python"
 
-# With a config file (auto-discovered: config.yaml or config.yml in current directory)
+# With user config (auto-loaded from ~/.hivemind/config.yml)
 hivemind run "Write a CSV parser in Python"
 
 # View a trace
@@ -51,9 +66,9 @@ print(result.usage_summary)
 
 ## Configuration
 
-hivemind automatically loads `config.yaml` or `config.yml` from the current directory if either exists. No flag required — just place the file and run.
+hivemind loads `~/.hivemind/config.yml` automatically — no flag required. Run `hivemind init` once to scaffold it from the default template, then edit it with your models and API keys.
 
-Copy `config.example.yaml` and edit for your setup:
+The template (also available as `config.example.yaml` in the repo) looks like this:
 
 ```yaml
 executor:
@@ -130,7 +145,7 @@ Enable Tavily web search so models can look up current information at their own 
 # Via CLI flag
 TAVILY_API_KEY=tvly-xxx hivemind run --search "What are the top AI papers this week?"
 
-# Via config (search.enabled: true in config.yaml)
+# Via config (search.enabled: true in ~/.hivemind/config.yml)
 TAVILY_API_KEY=tvly-xxx hivemind run "What are the top AI papers this week?"
 ```
 

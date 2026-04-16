@@ -1,24 +1,24 @@
-# Coagent: advisor strategy LLM framework
-from coagent.config import load_config, merge_cli_overrides
-from coagent.executor import ExecutorLoop
-from coagent.schemas import CoagentConfig, ExecutorResult
+# Hivemind: advisor strategy LLM framework
+from hivemind.config import load_config, merge_cli_overrides
+from hivemind.executor import ExecutorLoop
+from hivemind.schemas import ExecutorResult, HivemindConfig
 
 __all__ = [
     "load_config",
     "merge_cli_overrides",
     "ExecutorLoop",
-    "CoagentConfig",
+    "HivemindConfig",
     "ExecutorResult",
 ]
 
 
-def run_task(task: str, config: CoagentConfig | None = None) -> ExecutorResult:
+def run_task(task: str, config: HivemindConfig | None = None) -> ExecutorResult:
     """Convenience function to run a task with the given config."""
-    from coagent.advisor import Advisor
-    from coagent.log import NullTraceLogger
-    from coagent.models import ModelClient
-    from coagent.policy import DecisionPolicy
-    from coagent.tracking import CostTracker
+    from hivemind.advisor import Advisor
+    from hivemind.log import NullTraceLogger
+    from hivemind.models import ModelClient
+    from hivemind.policy import DecisionPolicy
+    from hivemind.tracking import CostTracker
 
     if config is None:
         config = load_config()

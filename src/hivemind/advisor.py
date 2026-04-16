@@ -1,7 +1,8 @@
 import json
 import logging
-from coagent.models import ModelClient
-from coagent.schemas import (
+
+from hivemind.models import ModelClient
+from hivemind.schemas import (
     AdvisorContext,
     AdvisorResponse,
     ExecutorState,

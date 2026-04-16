@@ -39,7 +39,7 @@ class SearchConfig(BaseModel):
     api_key: str | None = None
 
 
-class CoagentConfig(BaseModel):
+class HivemindConfig(BaseModel):
     executor: ModelConfig
     advisor: ModelConfig
     policy: PolicyConfig = Field(default_factory=PolicyConfig)

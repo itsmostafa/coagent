@@ -4,7 +4,7 @@ from typing import Any
 
 import yaml
 
-from coagent.schemas import CoagentConfig, ModelConfig
+from hivemind.schemas import HivemindConfig, ModelConfig
 
 
 def _expand_env_vars(value: str) -> str:
@@ -32,8 +32,8 @@ def _expand_env_vars_in_dict(data: Any) -> Any:
 _CONFIG_CANDIDATES = ("config.yaml", "config.yml")
 
 
-def load_config(path: str | None = None) -> CoagentConfig:
-    """Load CoagentConfig from a YAML file.
+def load_config(path: str | None = None) -> HivemindConfig:
+    """Load HivemindConfig from a YAML file.
 
     If path is None, looks for config.yaml then config.yml in the current
     directory. If neither exists, returns a default config.
@@ -47,7 +47,7 @@ def load_config(path: str | None = None) -> CoagentConfig:
                 break
 
     if path is None:
-        return CoagentConfig(
+        return HivemindConfig(
             executor=ModelConfig(model="ollama/llama3"),
             advisor=ModelConfig(model="ollama/llama3"),
         )
@@ -59,19 +59,19 @@ def load_config(path: str | None = None) -> CoagentConfig:
         raw = {}
 
     raw = _expand_env_vars_in_dict(raw)
-    return CoagentConfig.model_validate(raw)
+    return HivemindConfig.model_validate(raw)
 
 
 def merge_cli_overrides(
-    config: CoagentConfig,
+    config: HivemindConfig,
     executor: str | None = None,
     advisor: str | None = None,
     executor_api_base: str | None = None,
     advisor_api_base: str | None = None,
     force_consult: bool = False,
     search_enabled: bool | None = None,
-) -> CoagentConfig:
-    """Return a new CoagentConfig with CLI overrides applied.
+) -> HivemindConfig:
+    """Return a new HivemindConfig with CLI overrides applied.
 
     executor and advisor are model strings (e.g. "ollama/llama3").
     executor_api_base and advisor_api_base set the API endpoint for each model.
@@ -92,4 +92,4 @@ def merge_cli_overrides(
         data["policy"]["force_consult"] = True
     if search_enabled is not None:
         data["search"]["enabled"] = search_enabled
-    return CoagentConfig.model_validate(data)
+    return HivemindConfig.model_validate(data)

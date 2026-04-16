@@ -285,7 +285,7 @@ wheels = [
 ]
 
 [[package]]
-name = "coagent"
+name = "hivemind"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

@@ -2,9 +2,11 @@ import json
 import logging
 import uuid
 from typing import Any
+
 import litellm
 from tavily import TavilyClient
-from coagent.schemas import ModelConfig, ModelResponse, SearchConfig
+
+from hivemind.schemas import ModelConfig, ModelResponse, SearchConfig
 
 logger = logging.getLogger(__name__)
 

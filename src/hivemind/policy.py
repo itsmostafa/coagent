@@ -1,6 +1,6 @@
 import re
 
-from coagent.schemas import ExecutorState, PolicyConfig
+from hivemind.schemas import ExecutorState, PolicyConfig
 
 
 def _response_similarity(a: str, b: str) -> float:

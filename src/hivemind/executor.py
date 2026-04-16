@@ -1,12 +1,12 @@
 import logging
 from typing import Union
 
-from coagent.advisor import Advisor, build_advisor_context
-from coagent.log import NullTraceLogger, TraceLogger
-from coagent.models import ModelClient
-from coagent.policy import DecisionPolicy
-from coagent.schemas import CoagentConfig, ExecutorResult, ExecutorState
-from coagent.tracking import CostTracker
+from hivemind.advisor import Advisor, build_advisor_context
+from hivemind.log import NullTraceLogger, TraceLogger
+from hivemind.models import ModelClient
+from hivemind.policy import DecisionPolicy
+from hivemind.schemas import ExecutorResult, ExecutorState, HivemindConfig
+from hivemind.tracking import CostTracker
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class ExecutorLoop:
         policy: DecisionPolicy,
         tracker: CostTracker,
         trace_logger: Union[TraceLogger, NullTraceLogger],
-        config: CoagentConfig,
+        config: HivemindConfig,
     ) -> None:
         self.executor_client = executor_client
         self.advisor = advisor

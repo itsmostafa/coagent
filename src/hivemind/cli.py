@@ -4,13 +4,14 @@ import sys
 from datetime import datetime
 
 import click
-from coagent.advisor import Advisor
-from coagent.config import load_config, merge_cli_overrides
-from coagent.executor import ExecutorLoop
-from coagent.log import NullTraceLogger, TraceLogger, configure_logging
-from coagent.models import ModelClient
-from coagent.policy import DecisionPolicy
-from coagent.tracking import CostTracker
+
+from hivemind.advisor import Advisor
+from hivemind.config import load_config, merge_cli_overrides
+from hivemind.executor import ExecutorLoop
+from hivemind.log import NullTraceLogger, TraceLogger, configure_logging
+from hivemind.models import ModelClient
+from hivemind.policy import DecisionPolicy
+from hivemind.tracking import CostTracker
 
 
 def _timestamped_trace_path(path: str) -> str:
@@ -29,7 +30,7 @@ def _timestamped_trace_path(path: str) -> str:
 
 @click.group()
 def cli() -> None:
-    """Coagent: advisor strategy LLM framework."""
+    """Hivemind: advisor strategy LLM framework."""
 
 
 @cli.command()
@@ -72,7 +73,7 @@ def run(
     force_consult: bool,
     search_enabled: bool,
 ) -> None:
-    """Run coagent on a TASK."""
+    """Run hivemind on a TASK."""
     # Load and merge config (auto-discovers config.yaml / config.yml)
     config = load_config()
     config = merge_cli_overrides(

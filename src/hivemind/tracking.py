@@ -1,6 +1,6 @@
 from typing import Literal
 
-from coagent.schemas import ModelResponse, UsageRecord
+from hivemind.schemas import ModelResponse, UsageRecord
 
 
 class CostTracker:

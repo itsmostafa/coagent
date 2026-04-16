@@ -1,13 +1,13 @@
-"""Example: running coagent via the Python API."""
+"""Example: running hivemind via the Python API."""
 
-from coagent import run_task
-from coagent.schemas import CoagentConfig, ModelConfig
+from hivemind import run_task
+from hivemind.schemas import hivemindConfig, ModelConfig
 
 # Option 1: Use a config file
 # config = load_config("config.yaml")
 
 # Option 2: Build config programmatically
-config = CoagentConfig(
+config = hivemindConfig(
     executor=ModelConfig(model="ollama/llama3", api_base="http://localhost:11434"),
     advisor=ModelConfig(model="ollama/llama3", api_base="http://localhost:11434"),
 )

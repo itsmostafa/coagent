@@ -1,8 +1,8 @@
-# Coagent
+# Hivemind
 
-Coagent implements the **advisor strategy** pattern: a cheap executor model handles tasks turn-by-turn, while a powerful advisor model is consulted only when the executor signals it needs help. The result is frontier-level performance at a fraction of the cost.
+Hivemind implements the **advisor strategy** pattern: a cheap executor model handles tasks turn-by-turn, while a powerful advisor model is consulted only when the executor signals it needs help. The result is frontier-level performance at a fraction of the cost.
 
-The typical setup pairs a local model as the executor with a state-of-the-art model (`claude-opus-4-6`, `gpt-4o`) as the advisor. The advisor is called sparingly, not on every turn.
+The typical setup pairs a local model as the executor with a state-of-the-art model (`claude-opus-4-6`, `gpt-5.4`) as the advisor. The advisor is called sparingly, not on every turn.
 
 Reference: https://claude.com/blog/the-advisor-strategy
 
@@ -18,28 +18,28 @@ uv sync
 
 ```bash
 # With Ollama (local)
-coagent run --executor ollama/llama3.2 --advisor openai/gpt-5.4 "Explain REST vs GraphQL tradeoffs"
+hivemind run --executor ollama/llama3.2 --advisor openai/gpt-5.4 "Explain REST vs GraphQL tradeoffs"
 
 # With an OpenAI-compatible endpoint (e.g. LM Studio)
-coagent run \
+hivemind run \
   --executor openai/local-model --executor-api-base http://localhost:1234/v1 \
   --advisor openai/gpt-5.4 \
   "Write a CSV parser in Python"
 
 # With a config file (auto-discovered: config.yaml or config.yml in current directory)
-coagent run "Write a CSV parser in Python"
+hivemind run "Write a CSV parser in Python"
 
 # View a trace
-coagent trace traces/run.jsonl
+hivemind trace traces/run.jsonl
 ```
 
 ### Python API
 
 ```python
-from coagent import run_task, load_config
-from coagent.schemas import CoagentConfig, ModelConfig
+from hivemind import run_task, load_config
+from hivemind.schemas import hivemindConfig, ModelConfig
 
-config = CoagentConfig(
+config = hivemindConfig(
     executor=ModelConfig(model="ollama/llama3.2", api_base="http://localhost:11434"),
     advisor=ModelConfig(model="openai/gpt-5.4", api_key="..."),
 )
@@ -51,7 +51,7 @@ print(result.usage_summary)
 
 ## Configuration
 
-Coagent automatically loads `config.yaml` or `config.yml` from the current directory if either exists. No flag required — just place the file and run.
+hivemind automatically loads `config.yaml` or `config.yml` from the current directory if either exists. No flag required — just place the file and run.
 
 Copy `config.example.yaml` and edit for your setup:
 
@@ -128,10 +128,10 @@ Enable Tavily web search so models can look up current information at their own 
 
 ```bash
 # Via CLI flag
-TAVILY_API_KEY=tvly-xxx coagent run --search "What are the top AI papers this week?"
+TAVILY_API_KEY=tvly-xxx hivemind run --search "What are the top AI papers this week?"
 
 # Via config (search.enabled: true in config.yaml)
-TAVILY_API_KEY=tvly-xxx coagent run "What are the top AI papers this week?"
+TAVILY_API_KEY=tvly-xxx hivemind run "What are the top AI papers this week?"
 ```
 
 The model decides when to call the search tool (`tool_choice="auto"`). It is never forced. Get a free API key at [tavily.com](https://tavily.com).

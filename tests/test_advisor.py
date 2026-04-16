@@ -1,11 +1,11 @@
-"""Tests for Advisor and build_advisor_context in coagent.advisor."""
+"""Tests for Advisor and build_advisor_context in hivemind.advisor."""
 
 import json
 from unittest.mock import MagicMock
 
 
-from coagent.advisor import Advisor, build_advisor_context
-from coagent.schemas import AdvisorResponse, ExecutorState, ModelResponse
+from hivemind.advisor import Advisor, build_advisor_context
+from hivemind.schemas import AdvisorResponse, ExecutorState, ModelResponse
 
 
 def make_mock_model_response(content: str) -> ModelResponse:

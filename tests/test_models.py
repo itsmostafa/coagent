@@ -2,8 +2,8 @@
 
 from unittest.mock import MagicMock, patch
 
-from coagent.models import TAVILY_SEARCH_TOOL, ModelClient
-from coagent.schemas import ModelConfig, SearchConfig
+from hivemind.models import TAVILY_SEARCH_TOOL, ModelClient
+from hivemind.schemas import ModelConfig, SearchConfig
 
 
 def _make_client(
@@ -41,9 +41,9 @@ def test_generate_without_search_no_tools():
     plain_response = _mock_response("hello")
 
     with patch(
-        "coagent.models.litellm.completion", return_value=plain_response
+        "hivemind.models.litellm.completion", return_value=plain_response
     ) as mock_completion:
-        with patch("coagent.models.litellm.completion_cost", return_value=0.0):
+        with patch("hivemind.models.litellm.completion_cost", return_value=0.0):
             client.generate([{"role": "user", "content": "hi"}])
 
     call_kwargs = mock_completion.call_args[1]
@@ -57,9 +57,9 @@ def test_generate_with_search_enabled_passes_tool():
     plain_response = _mock_response("answer")
 
     with patch(
-        "coagent.models.litellm.completion", return_value=plain_response
+        "hivemind.models.litellm.completion", return_value=plain_response
     ) as mock_completion:
-        with patch("coagent.models.litellm.completion_cost", return_value=0.0):
+        with patch("hivemind.models.litellm.completion_cost", return_value=0.0):
             client.generate([{"role": "user", "content": "hi"}])
 
     call_kwargs = mock_completion.call_args[1]
@@ -72,8 +72,8 @@ def test_generate_model_skips_tool_when_not_needed():
     client = _make_client(search_enabled=True)
     plain_response = _mock_response("direct answer")
 
-    with patch("coagent.models.litellm.completion", return_value=plain_response):
-        with patch("coagent.models.litellm.completion_cost", return_value=0.0):
+    with patch("hivemind.models.litellm.completion", return_value=plain_response):
+        with patch("hivemind.models.litellm.completion_cost", return_value=0.0):
             with patch.object(client, "_run_tavily_search") as mock_search:
                 result = client.generate(
                     [{"role": "user", "content": "simple question"}]
@@ -102,10 +102,10 @@ def test_generate_handles_tool_call_loop():
     )
 
     with patch(
-        "coagent.models.litellm.completion",
+        "hivemind.models.litellm.completion",
         side_effect=[tool_call_response, final_response],
     ):
-        with patch("coagent.models.litellm.completion_cost", return_value=0.0):
+        with patch("hivemind.models.litellm.completion_cost", return_value=0.0):
             with patch.object(
                 client, "_run_tavily_search", return_value='{"results": []}'
             ) as mock_search:
@@ -136,10 +136,10 @@ def test_generate_accumulates_tokens_across_tool_calls():
     )
 
     with patch(
-        "coagent.models.litellm.completion",
+        "hivemind.models.litellm.completion",
         side_effect=[first_response, second_response],
     ):
-        with patch("coagent.models.litellm.completion_cost", return_value=0.0):
+        with patch("hivemind.models.litellm.completion_cost", return_value=0.0):
             with patch.object(client, "_run_tavily_search", return_value="{}"):
                 result = client.generate([{"role": "user", "content": "test"}])
 
@@ -155,7 +155,7 @@ def test_run_tavily_search_uses_config_api_key():
     mock_tavily_client.search.return_value = {"results": []}
 
     with patch(
-        "coagent.models.TavilyClient", return_value=mock_tavily_client
+        "hivemind.models.TavilyClient", return_value=mock_tavily_client
     ) as mock_cls:
         client._run_tavily_search("some query")
 
@@ -171,7 +171,7 @@ def test_run_tavily_search_falls_back_to_env():
     mock_tavily_client.search.return_value = {"results": []}
 
     with patch(
-        "coagent.models.TavilyClient", return_value=mock_tavily_client
+        "hivemind.models.TavilyClient", return_value=mock_tavily_client
     ) as mock_cls:
         client._run_tavily_search("another query")
 

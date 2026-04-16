@@ -1,7 +1,7 @@
-"""Tests for DecisionPolicy in coagent.policy."""
+"""Tests for DecisionPolicy in hivemind.policy."""
 
-from coagent.policy import DecisionPolicy, _response_similarity
-from coagent.schemas import ExecutorState, PolicyConfig
+from hivemind.policy import DecisionPolicy, _response_similarity
+from hivemind.schemas import ExecutorState, PolicyConfig
 
 
 def make_state(advisor_calls: int = 0) -> ExecutorState:

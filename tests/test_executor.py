@@ -1,19 +1,18 @@
-"""Tests for ExecutorLoop in coagent.executor."""
+"""Tests for ExecutorLoop in hivemind.executor."""
 
 from unittest.mock import MagicMock
 
-
-from coagent.executor import ExecutorLoop
-from coagent.log import NullTraceLogger
-from coagent.policy import DecisionPolicy
-from coagent.schemas import (
+from hivemind.executor import ExecutorLoop
+from hivemind.log import NullTraceLogger
+from hivemind.policy import DecisionPolicy
+from hivemind.schemas import (
     AdvisorResponse,
-    CoagentConfig,
+    HivemindConfig,
     ModelConfig,
     ModelResponse,
     PolicyConfig,
 )
-from coagent.tracking import CostTracker
+from hivemind.tracking import CostTracker
 
 
 class RecordingTraceLogger:
@@ -60,7 +59,7 @@ def make_executor_loop(
             cooldown_turns=1,
         )
 
-    config = CoagentConfig(
+    config = HivemindConfig(
         executor=ModelConfig(model="test/executor"),
         advisor=ModelConfig(model="test/advisor"),
         policy=policy_config,

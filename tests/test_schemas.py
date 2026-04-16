@@ -1,12 +1,12 @@
-"""Tests for Pydantic model validation in coagent.schemas."""
+"""Tests for Pydantic model validation in hivemind.schemas."""
 
 import pytest
 from pydantic import ValidationError
 
-from coagent.config import load_config, merge_cli_overrides
-from coagent.schemas import (
+from hivemind.config import load_config, merge_cli_overrides
+from hivemind.schemas import (
     AdvisorResponse,
-    CoagentConfig,
+    hivemindConfig,
     ExecutorResult,
     ExecutorState,
     ModelConfig,
@@ -49,8 +49,8 @@ def test_policy_config_defaults():
     assert config.force_consult is False
 
 
-def test_coagent_config_defaults():
-    config = CoagentConfig(
+def test_hivemind_config_defaults():
+    config = hivemindConfig(
         executor=ModelConfig(model="ollama/llama3"),
         advisor=ModelConfig(model="ollama/llama3"),
     )
@@ -108,7 +108,7 @@ def test_merge_cli_overrides_sets_advisor_api_base():
 
 
 def test_merge_cli_overrides_api_base_none_preserves_existing():
-    config = CoagentConfig(
+    config = hivemindConfig(
         executor=ModelConfig(model="ollama/llama3"),
         advisor=ModelConfig(model="ollama/llama3"),
     )

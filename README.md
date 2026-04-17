@@ -1,5 +1,8 @@
 # Hivemind
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Claude](https://img.shields.io/badge/Claude-D97757?logo=claude&logoColor=fff)](https://claude.ai/code)
+
 Hivemind implements the **advisor strategy** pattern: a cheap executor model handles tasks turn-by-turn, while a powerful advisor model is consulted only when the executor signals it needs help. The result is frontier-level performance at a fraction of the cost.
 
 The typical setup pairs a local model as the executor with a state-of-the-art model (`claude-opus-4-6`, `gpt-5.4`) as the advisor. The advisor is called sparingly, not on every turn.
@@ -81,9 +84,9 @@ All CLI flags from `hivemind run` are available (`--executor`, `--advisor`, `--e
 
 ```python
 from hivemind import run_task, load_config
-from hivemind.schemas import hivemindConfig, ModelConfig
+from hivemind.schemas import HivemindConfig, ModelConfig
 
-config = hivemindConfig(
+config = HivemindConfig(
     executor=ModelConfig(model="ollama/llama3.2", api_base="http://localhost:11434"),
     advisor=ModelConfig(model="openai/gpt-5.4", api_key="..."),
 )
@@ -118,7 +121,6 @@ policy:
 max_turns: 20
 logging:
   level: "INFO"
-  trace_file: "traces/run.jsonl"
 
 # Optional: Tavily web search tool (models decide when to use it)
 search:

@@ -19,6 +19,7 @@ uv run pytest tests/test_executor.py::test_name -v
 # Invoke the CLI (use uv run — the system entrypoint may use the wrong Python)
 uv run hivemind init                        # scaffold ~/.hivemind/config.yml
 uv run hivemind run --executor ollama/llama3 --advisor ollama/llama3 "Your task"
+uv run hivemind chat                        # interactive REPL with state carryover
 uv run hivemind trace traces/run.jsonl
 ```
 

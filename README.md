@@ -32,7 +32,7 @@ uv tool install ./hivemind
 hivemind init
 # Edit ~/.hivemind/config.yml to set your models and API keys
 
-# With Ollama (local)
+# One-shot task
 hivemind run --executor ollama/llama3.2 --advisor openai/gpt-5.4 "Explain REST vs GraphQL tradeoffs"
 
 # With an OpenAI-compatible endpoint (e.g. LM Studio)
@@ -44,9 +44,38 @@ hivemind run \
 # With user config (auto-loaded from ~/.hivemind/config.yml)
 hivemind run "Write a CSV parser in Python"
 
+# Interactive chat REPL — conversation history is preserved across turns
+hivemind chat
+hivemind chat --executor ollama/llama3.2 --advisor openai/gpt-5.4
+
 # View a trace
 hivemind trace traces/run.jsonl
 ```
+
+### Chat REPL
+
+`hivemind chat` opens an interactive session. The executor+advisor pipeline runs on each message and conversation history carries over between turns so follow-up questions have full context.
+
+```
+hivemind chat  (q=quit, r=reset, h=help)
+Executor Model: ollama/llama3.2  Advisor Model: openai/gpt-5.4  Web Search: Off
+>> Explain the adapter pattern
+...
+>> Now show me an example in Go
+...
+>> r
+[session reset]
+>> 
+```
+
+| Command | Action |
+|---------|--------|
+| `q` / `quit` / `exit` | End the session and print cumulative usage |
+| `r` / `reset` | Clear conversation history and start fresh |
+| `h` / `help` | Show available commands |
+| Ctrl-C / Ctrl-D | Exit immediately |
+
+All CLI flags from `hivemind run` are available (`--executor`, `--advisor`, `--executor-api-base`, `--advisor-api-base`, `--trace`, `--search`) except `--force-consult`.
 
 ### Python API
 
